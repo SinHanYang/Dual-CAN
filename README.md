@@ -14,7 +14,7 @@ python main.py --data_dir data --output_dir output --mode 1
 ```
 
 ## How to Create data
-* Follow FakeNewsNet (https://github.com/KaiDMML/FakeNewsNet) and CoAID (https://github.com/cuilimeng/CoAID) instruction, download the data.
+* Follow FakeNewsNet (https://github.com/KaiDMML/FakeNewsNet) and CoAID (https://github.com/cuilimeng/CoAID) instructions to download the data.
 * The id we use for the experiments are in `data` directory.
     * For GossipCop, the data_id is the name of the directory. We only use tweet without retweet.
     * For CoAID, we use the first version (05-01-2020). The dataid is the (label+id). Again, We only use tweet without retweet.
