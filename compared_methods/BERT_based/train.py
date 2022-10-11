@@ -19,9 +19,9 @@ class Trainer:
         self.dev_size=dev_size
 
     def train(self):
-        '''
         for param in self.model.bert_model_news.parameters():
             param.requires_grad = False
+        '''
         for param in self.model.bert_model_entity.parameters():
             param.requires_grad = False
         for param in self.model.bert_model_tweet.parameters():

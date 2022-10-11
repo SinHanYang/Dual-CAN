@@ -7,10 +7,14 @@ from transformers import RobertaModel,AutoModel
 class Classifier(nn.Module):
     def __init__(self,hidden_size:int):
         super(Classifier, self).__init__()
-        self.l1=nn.Linear(hidden_size,2) 
+        self.l1=nn.Linear(hidden_size,hidden_size)
+        self.relu=nn.ReLU()
+        self.l2=nn.Linear(hidden_size,2) 
 
     def forward(self,input):
-        ans=self.l1(input)
+        l1=self.l1(input)
+        relu=self.relu(l1)
+        ans=self.l2(relu)
         y=F.softmax(ans,dim=1)
         return y
 
