@@ -19,8 +19,14 @@ class Trainer:
         self.dev_size=dev_size
 
     def train(self):
-        for param in self.model.bert_model.parameters():
+        '''
+        for param in self.model.bert_model_news.parameters():
             param.requires_grad = False
+        for param in self.model.bert_model_entity.parameters():
+            param.requires_grad = False
+        for param in self.model.bert_model_tweet.parameters():
+            param.requires_grad = False
+        '''
         optimizer = optim.Adam(self.model.parameters(),lr=self.args.lr)
 
         epoch_pbar = trange(self.args.num_epoch, desc="Epoch")
@@ -31,11 +37,17 @@ class Trainer:
             total_loss,train_acc=0,0
             for batches in self.tr_set:
                 optimizer.zero_grad()
-                input_ids=batches["input_ids"].to(self.args.device)
-                masks=batches["masks"].to(self.args.device)
-                #token_type_ids=batches["token_type_ids"].to(self.args.device)
+                input_ids_news=batches["input_ids_news"].to(self.args.device)
+                masks_news=batches["masks_news"].to(self.args.device)
+
+                input_ids_entity=batches["input_ids_entity"].to(self.args.device)
+                masks_entity=batches["masks_entity"].to(self.args.device)
+
+                input_ids_tweet=batches["input_ids_tweet"].to(self.args.device)
+                masks_tweet=batches["masks_tweet"].to(self.args.device)
+                
                 y=batches["label_list"].to(self.args.device)
-                pred=self.model(input_ids,masks)
+                pred=self.model(input_ids_news,masks_news,input_ids_entity,masks_entity,input_ids_tweet,masks_tweet)
                 _, label= torch.max(pred,1)
                 y=y.to(torch.long)
                 loss = self.model.cal_loss(pred, y)  # compute loss
@@ -60,15 +72,20 @@ class Trainer:
             preds=[]
             with torch.no_grad():
                 for batches in self.dev_set:                       
-                    input_ids=batches["input_ids"].to(self.args.device)
-                    masks=batches["masks"].to(self.args.device)
-                    #token_type_ids=batches["token_type_ids"].to(self.args.device)
+                    input_ids_news=batches["input_ids_news"].to(self.args.device)
+                    masks_news=batches["masks_news"].to(self.args.device)
+
+                    input_ids_entity=batches["input_ids_entity"].to(self.args.device)
+                    masks_entity=batches["masks_entity"].to(self.args.device)
+
+                    input_ids_tweet=batches["input_ids_tweet"].to(self.args.device)
+                    masks_tweet=batches["masks_tweet"].to(self.args.device)
                     y=batches["label_list"].to(self.args.device)
                     for ans_label in y:
                         ans_label=int(ans_label)
                         ans_list.append(ans_label)
                     y=y.to(self.args.device)
-                    pred=self.model(input_ids,masks)
+                    pred=self.model(input_ids_news,masks_news,input_ids_entity,masks_entity,input_ids_tweet,masks_tweet)
                     _, label= torch.max(pred,1)
                     y=y.to(torch.long)
                     correct=evaluation(label,y)

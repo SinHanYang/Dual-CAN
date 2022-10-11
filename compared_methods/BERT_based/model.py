@@ -17,13 +17,18 @@ class Classifier(nn.Module):
 class Model(nn.Module):
     def __init__(self,bert_size):
         super(Model, self).__init__()
-        self.bert_model = AutoModel.from_pretrained("michiyasunaga/LinkBERT-base")
-        self.classifier=Classifier(bert_size)
+        self.bert_model_news = AutoModel.from_pretrained("michiyasunaga/LinkBERT-base")
+        self.bert_model_entity = AutoModel.from_pretrained("michiyasunaga/LinkBERT-base")
+        self.bert_model_tweet = AutoModel.from_pretrained("michiyasunaga/LinkBERT-base")
+        self.classifier=Classifier(bert_size*3)
         self.loss=nn.CrossEntropyLoss()
 
-    def forward(self,input_ids,mask):
-        _,o2= self.bert_model(input_ids,attention_mask=mask,return_dict=False)
-
+    def forward(self,input_ids_news,mask_news,input_ids_entity,mask_entity,input_ids_tweet,mask_tweet):
+        _,o2_news= self.bert_model_news(input_ids_news,attention_mask=mask_news,return_dict=False)
+        _,o2_entity= self.bert_model_entity(input_ids_entity,attention_mask=mask_entity,return_dict=False)
+        _,o2_tweet= self.bert_model_tweet(input_ids_tweet,attention_mask=mask_tweet,return_dict=False)
+        
+        o2=torch.cat([o2_news,o2_entity,o2_tweet],dim=1)
         y=self.classifier(o2)
         return y
 
