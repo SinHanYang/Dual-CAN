@@ -44,13 +44,28 @@ class KB_CoDataset(Dataset):
         news_count=0
         desc_count=0
         tweet_count=0
-        alltext=""
+
+        # news
+        newstext=""
         for sent in tokenize.sent_tokenize(instance['text']):
             if(news_count>=self.max_sent_num):
                 break
-            alltext+=str(sent)
+            newstext+=str(sent)
             news_count+=1
         
+        inputs = self.tokenizer.encode_plus(
+            newstext,
+            padding='max_length',
+            truncation=True,
+            #pad_to_max_length=True,
+            add_special_tokens=True,
+            return_attention_mask=True,
+        )
+        ids_news=torch.tensor(inputs['input_ids'])
+        masks_news=torch.tensor(inputs['attention_mask'])
+        
+        # entity description
+        entitytext=""
         for desc in instance['desc_list']:
             count=0
             if(desc_count>self.max_desc_sent_num):
@@ -58,10 +73,23 @@ class KB_CoDataset(Dataset):
             for sent in tokenize.sent_tokenize(desc):
                 if(count>=self.max_single_desc or desc_count>=self.max_desc_sent_num):
                     break
-                alltext+=str(sent)
+                entitytext+=str(sent)
                 count+=1
                 desc_count+=1
 
+        inputs = self.tokenizer.encode_plus(
+            entitytext,
+            padding='max_length',
+            truncation=True,
+            #pad_to_max_length=True,
+            add_special_tokens=True,
+            return_attention_mask=True,
+        )
+        ids_entity=torch.tensor(inputs['input_ids'])
+        masks_entity=torch.tensor(inputs['attention_mask'])
+
+        # tweet
+        tweettext=""
         for tweet in instance['tweet_list']:
             count=0
             if(tweet_count>=self.max_tweet_sent_num):
@@ -69,24 +97,25 @@ class KB_CoDataset(Dataset):
             for sent in tokenize.sent_tokenize(tweet):
                 if(count>=self.max_single_tweet or tweet_count>=self.max_tweet_sent_num):
                     break
-                alltext+=str(sent)
+                tweettext+=str(sent)
                 count+=1
                 tweet_count+=1
         
         inputs = self.tokenizer.encode_plus(
-            alltext,
+            tweettext,
+            padding='max_length',
             truncation=True,
-            pad_to_max_length=True,
+            #pad_to_max_length=True,
             add_special_tokens=True,
             return_attention_mask=True,
         )
-        ids=torch.tensor(inputs['input_ids'])
-        #token_type_id=torch.tensor(inputs['token_type_ids'])
-        masks=torch.tensor(inputs['attention_mask'])
+        ids_tweet=torch.tensor(inputs['input_ids'])
+        masks_tweet=torch.tensor(inputs['attention_mask'])
+
         if (self.mode=='test'):
-            return  (label,ids,masks,index)
+            return  (label,ids_news,masks_news,ids_entity,masks_entity,ids_tweet,masks_tweet,index)
         else:
-            return  (label,ids,masks,None)
+            return  (label,ids_news,masks_news,ids_entity,masks_entity,ids_tweet,masks_tweet,None)
 
     def num_classes(self) -> int:
         return len(self.label_mapping)
@@ -97,26 +126,52 @@ class KB_CoDataset(Dataset):
         if(self.mode=="test"):
             batch["id_list"]=[]
             for s in samples:
-                batch["id_list"].append(s[3])
+                batch["id_list"].append(s[7])
         #else:
         for s in samples:
             label_list.append(s[0])
         label_list=torch.tensor(label_list)
         batch["label_list"]=label_list
+
+        # ========== news ============== 
         ids=[s[1] for s in samples]
         masks=[s[2] for s in samples]
-        #token_type_id=[s[3] for s in samples]
         
         ids=pad_sequence(ids,batch_first=True)
         masks=pad_sequence(masks,batch_first=True)
-        #token_type_id=pad_sequence(token_type_id,batch_first=True)
     
         ids=torch.tensor(ids)
         masks=torch.tensor(masks)
-        #token_type_id=torch.tensor(token_type_id)
-        batch['input_ids']=ids
-        batch['masks']=masks
-        #batch['token_type_ids']=token_type_id
+
+        batch['input_ids_news']=ids
+        batch['masks_news']=masks
+
+        # ========== entity description ============== 
+        ids=[s[3] for s in samples]
+        masks=[s[4] for s in samples]
+        
+        ids=pad_sequence(ids,batch_first=True)
+        masks=pad_sequence(masks,batch_first=True)
+    
+        ids=torch.tensor(ids)
+        masks=torch.tensor(masks)
+
+        batch['input_ids_entity']=ids
+        batch['masks_entity']=masks
+
+        # ========== news ============== 
+        ids=[s[5] for s in samples]
+        masks=[s[6] for s in samples]
+        
+        ids=pad_sequence(ids,batch_first=True)
+        masks=pad_sequence(masks,batch_first=True)
+    
+        ids=torch.tensor(ids)
+        masks=torch.tensor(masks)
+
+        batch['input_ids_tweet']=ids
+        batch['masks_tweet']=masks
+
         return batch
 
             

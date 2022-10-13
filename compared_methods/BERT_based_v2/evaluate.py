@@ -21,8 +21,14 @@ class Tester:
         id_list=[]
         att_weight_list=[]
         for batches in self.test_set:                            # iterate through the dataloader
-            input_ids=batches["input_ids"].to(self.args.device)
-            masks=batches["masks"].to(self.args.device)
+            input_ids_news=batches["input_ids_news"].to(self.args.device)
+            masks_news=batches["masks_news"].to(self.args.device)
+
+            input_ids_entity=batches["input_ids_entity"].to(self.args.device)
+            masks_entity=batches["masks_entity"].to(self.args.device)
+
+            input_ids_tweet=batches["input_ids_tweet"].to(self.args.device)
+            masks_tweet=batches["masks_tweet"].to(self.args.device)
             #token_type_ids=batches["token_type_ids"].to(self.args.device)
             ans=batches["label_list"]
             ids=batches["id_list"]
@@ -31,7 +37,7 @@ class Tester:
             for index in ids:
                 id_list.append(index)
             with torch.no_grad():                   # disable gradient calculation
-                output = self.model(input_ids,masks)                     # forward pass (compute output)
+                output = self.model(input_ids_news,masks_news,input_ids_entity,masks_entity,input_ids_tweet,masks_tweet)                     # forward pass (compute output)
                 prob=output[:,1]
                 _, pred= torch.max(output,1)
                 for y in pred.cpu().numpy():
