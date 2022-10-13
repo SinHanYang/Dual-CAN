@@ -8,13 +8,13 @@ class Classifier(nn.Module):
     def __init__(self,hidden_size:int):
         super(Classifier, self).__init__()
         self.l1=nn.Linear(hidden_size,hidden_size)
-        self.relu=nn.ReLU()
+        #self.relu=nn.ReLU()
         self.l2=nn.Linear(hidden_size,2) 
 
     def forward(self,input):
         l1=self.l1(input)
-        relu=self.relu(l1)
-        ans=self.l2(relu)
+        #relu=self.relu(l1)
+        ans=self.l2(l1)
         y=F.softmax(ans,dim=1)
         return y
 

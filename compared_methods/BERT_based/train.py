@@ -21,12 +21,11 @@ class Trainer:
     def train(self):
         for param in self.model.bert_model_news.parameters():
             param.requires_grad = False
-        '''
         for param in self.model.bert_model_entity.parameters():
             param.requires_grad = False
         for param in self.model.bert_model_tweet.parameters():
             param.requires_grad = False
-        '''
+
         optimizer = optim.Adam(self.model.parameters(),lr=self.args.lr)
 
         epoch_pbar = trange(self.args.num_epoch, desc="Epoch")
