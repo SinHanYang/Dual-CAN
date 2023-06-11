@@ -1,5 +1,5 @@
 # Dual-CAN
-Code for EACL 2023 Findings [Entity-Aware Dual Co-Attention Network for Fake News Detection](https://sinhanyang.github.io/assets/pdf/Fake_News_Detection_EACL2023.pdf)
+Code for EACL 2023 Findings [Entity-Aware Dual Co-Attention Network for Fake News Detection](https://aclanthology.org/2023.findings-eacl.7/)
 
 ## How to Run
 1. Put data in the same directory (bigru, BERT_based, Dual_CAN_model) of the code.
